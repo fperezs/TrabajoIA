@@ -81,14 +81,14 @@ class NeuralNetwork:
     def save_model(self, filename="weights_final.npy"):
         weights = self.get_flat_weights()
         np.save(filename, weights)
-        print(f"controlador guardado: {filename}")
+        print(f"Controlador guardado: {filename}")
 
     def load_model(self, filename="weights_final.npy"):
         try:
             weights = np.load(filename)
             self.set_flat_weights(weights)
-            print(f"controlador cargado: {filename}")
+            print(f"Controlador cargado: {filename}")
             return True
         except FileNotFoundError:
-            print(f"no se encontro el archivo {filename}, iniciando desde cero.")
+            print(f"No se encontro el archivo {filename}, iniciando desde cero.")
             return False
