@@ -11,7 +11,7 @@ class Population:
         self.cars = []
 
         if load_file:
-            print(f"cargando weights desde {load_file}")
+            print(f"Cargando weights desde {load_file}")
             dummy_car = Car()
             if dummy_car.controller.load_model(load_file):
                 base_dna = dummy_car.controller.get_flat_weights()

@@ -41,6 +41,16 @@ def run_simulation():
                 HEIGHT // 2 - text_surface.get_height() // 2,
             ),
         )
+        text_quit = font.render(
+            "Pulsa la tecla Q para salir", True, COLOR_TEXT
+        )
+        screen.blit(
+            text_quit,
+            (
+                WIDTH // 2 - text_quit.get_width() // 2,
+                HEIGHT - 100,
+            ),
+        )
         pygame.display.flip()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -52,6 +62,11 @@ def run_simulation():
                     break
                 elif event.key == pygame.K_2:
                     trainning = 2
+                    break
+                elif event.key == pygame.K_q:
+                    trainning = 3
+                else:
+                    trainning = 4
                     break
 
         match trainning:
@@ -169,11 +184,26 @@ def run_simulation():
                             if frame_count % 100 == 0:
                                 screen.fill((0, 0, 0))
                                 status = f"Modo rapido | Gen: {population.generation} | Pulsa TAB para modo lider"
+                                text_status = font.render(status, True, COLOR_TEXT)
                                 screen.blit(
-                                    font.render(status, True, COLOR_TEXT),
-                                    (WIDTH // 2 - 200, HEIGHT // 2),
+                                    text_status,
+                                    (
+                                        WIDTH // 2 - text_status.get_width() // 2,
+                                        HEIGHT // 2 - text_status.get_height() // 2,
+                                    ),
                                 )
-                                screen.blit(font.render("Pulsa la tecla | C: Cancelar | S: Guardar | Q: Guardar y salir", True, COLOR_TEXT), (WIDTH // 2 - 235, HEIGHT - 100))
+                                
+                                text_save = font.render(
+                                    "Pulsa la tecla | C: Cancelar | S: Guardar | Q: Guardar y salir", True, COLOR_TEXT
+                                )
+                                screen.blit(
+                                    text_save,
+                                    (
+                                        WIDTH // 2 - text_save.get_width() // 2,
+                                        HEIGHT - 100,
+                                    ),
+                                )
+                                
                                 pygame.display.flip()
 
                         case 2:
@@ -201,57 +231,61 @@ def run_simulation():
                 break
             case 2:
                 running = True
+                
+                population = Population(size=1, load_file="weights_final.npy")
+                leader = population.cars[0]
+                obstacles = []
+                frame_count = 0
+
                 while running:
-                    population = Population(size=1, load_file="weights_final.npy")
-                    leader = population.cars[0]
-                    obstacles = []
-                    frame_count = 0
-
-                    while running:
-                        for event in pygame.event.get():
-                            if event.type == pygame.QUIT:
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            running = False
+                        if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_q:
                                 running = False
-                            if event.type == pygame.KEYDOWN:
-                                if event.key == pygame.K_q:
-                                    running = False
 
 
-                        if leader.alive:
-                            frame_count += 1
-                            if frame_count >= SPAWN_FRAMES:
-                                obstacles.append(Obstacle())
-                                frame_count = 0
-                            for obs in obstacles:
-                                obs.update()
-                            obstacles = [
-                                obs for obs in obstacles if not obs.is_off_screen()
-                            ]
-                            obstacle_rects = [obs.rect for obs in obstacles]
-
-                            leader.update(obstacle_rects)
-                        else:
-                            leader.reset()
-                            pygame.time.delay(1000)
-
-                        screen.fill(COLOR_BG)
-
+                    if leader.alive:
+                        frame_count += 1
+                        if frame_count >= SPAWN_FRAMES:
+                            obstacles.append(Obstacle())
+                            frame_count = 0
                         for obs in obstacles:
-                            obs.draw(screen)
+                            obs.update()
+                        obstacles = [
+                            obs for obs in obstacles if not obs.is_off_screen()
+                        ]
+                        obstacle_rects = [obs.rect for obs in obstacles]
 
-                        leader.draw(screen, show_sensors=True)
-                        pygame.draw.rect(screen, COLOR_TARGET, leader.target)
+                        leader.update(obstacle_rects)
+                    else:
+                        leader.reset()
+                        pygame.time.delay(1000)
 
-                        status = f"Score: {leader.score:.2f}"
-                        screen.blit(font.render(status, True, COLOR_TEXT), (10, 10))
-                        screen.blit(font.render("Pulsa la tecla Q para salir", True, COLOR_TEXT), (10, HEIGHT - 40))
+                    screen.fill(COLOR_BG)
 
-                        pygame.display.flip()
-                        clock.tick(FPS/2)
+                    for obs in obstacles:
+                        obs.draw(screen)
 
-                    pygame.quit()
-                    break
-            case _:
+                    leader.draw(screen, show_sensors=True)
+                    pygame.draw.rect(screen, COLOR_TARGET, leader.target)
+
+                    status = f"Score: {leader.score:.2f}"
+                    screen.blit(font.render(status, True, COLOR_TEXT), (10, 10))
+                    screen.blit(font.render("Pulsa la tecla Q para salir", True, COLOR_TEXT), (10, HEIGHT - 40))
+
+                    pygame.display.flip()
+                    clock.tick(FPS/2)
+
+                pygame.quit() 
+                break
+            case 3:
+                pygame.quit() 
+                break
+            case 4:
                 print("Opcion no valida")
+                trainning = 0
 
 
 if __name__ == "__main__":
